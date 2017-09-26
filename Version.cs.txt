@@ -1,0 +1,7 @@
+﻿namespace ASD.Ident-Plus
+{
+    public static class Version
+    {
+        public const string VersionString = "$$VERSION$$";
+    }
+}
