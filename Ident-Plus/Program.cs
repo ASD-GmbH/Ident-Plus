@@ -20,19 +20,35 @@ namespace ASD.Ident_Plus
         {
             while (true)
             {
-                var dllfile = "Ident";
-                if (File.Exists(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "//" + dllfile + ".dll"))
+                var dllName = "Ident";
+                if (File.Exists(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "//" + dllName + ".dll"))
                 {
-                    var domain = AppDomain.CreateDomain("UpdaterDomain");
-                    domain.DomainUnload += (sender, args) => Console.WriteLine("Unloaded");
+                    var domain = AppDomain.CreateDomain(dllName + "Domain");
+                    domain.DomainUnload += (sender, args) => Console.WriteLine("Domain Unloaded");
 
-                    var komponente = domain.CreateInstanceAndUnwrap(dllfile, "Ident.UpdateablePlus") as IUpdateable;
+                    var komponente = domain.CreateInstanceAndUnwrap(dllName, "Ident.UpdateablePlus") as IUpdateable;
                     komponente?.Run();
 
                     AppDomain.Unload(domain);
+
+                    if (UpdateVerfuegbar()) FuehreUpdateDurch();
+
                     Thread.Sleep(500);
                 }
             }
+        }
+
+        private static void FuehreUpdateDurch()
+        {
+            Console.WriteLine("Update wird durchgeführt!");
+            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            File.Delete(path + "//Ident.dll");
+            File.Move(path + "//Update//Ident.dll", path + "//Ident.dll");
+        }
+
+        private static bool UpdateVerfuegbar()
+        {
+            return File.Exists(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "//Update//Ident.dll");
         }
     }
 }

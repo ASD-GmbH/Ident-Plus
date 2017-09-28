@@ -8,7 +8,7 @@ namespace Ident
     {
         public void Run()
         {
-           Console.WriteLine("Run Version 1");
+           Console.WriteLine("Run Version 2");
         }
 
         public void Terminate()
@@ -18,7 +18,7 @@ namespace Ident
 
         public void Update()
         {
-            throw new System.NotImplementedException();
+            Console.WriteLine("Update wird ausgeführt!");
         }
     }
 }
