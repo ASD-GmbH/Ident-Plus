@@ -14,10 +14,14 @@ namespace ASD.Ident_Plus
         /// On-the-fly Update
         /// </summary>
 
+        private static string _path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
 
         private static void Main()
         {
+
+
+
             while (true)
             {
                 var dllName = "Ident";
@@ -26,29 +30,49 @@ namespace ASD.Ident_Plus
                     var domain = AppDomain.CreateDomain(dllName + "Domain");
                     domain.DomainUnload += (sender, args) => Console.WriteLine("Domain Unloaded");
 
-                    var komponente = domain.CreateInstanceAndUnwrap(dllName, "Ident.UpdateablePlus") as IUpdateable;
-                    komponente?.Run();
+                    var IdentAPP = domain.CreateInstanceAndUnwrap(dllName, "Ident.UpdateablePlus") as IUpdateable;
+                    IdentAPP?.Run();
 
-                    AppDomain.Unload(domain);
+                    if (App_Update_Verfuegbar() && (IdentAPP == null || IdentAPP.AllowsUpdate())) Update_App(domain);
 
-                    if (UpdateVerfuegbar()) FuehreUpdateDurch();
 
                     Thread.Sleep(500);
                 }
             }
         }
 
-        private static void FuehreUpdateDurch()
+
+
+
+        private static void Update_App(AppDomain identdomain)
         {
-            Console.WriteLine("Update wird durchgeführt!");
-            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            File.Delete(path + "//Ident.dll");
-            File.Move(path + "//Update//Ident.dll", path + "//Ident.dll");
+            Console.WriteLine("APP_Update wird durchgeführt!");
+            AppDomain.Unload(identdomain);
+            File.Delete(_path + "//Ident.dll");
+            File.Move(_path + "//Update//Ident.dll", _path + "//Ident.dll");
+
+            // App neu laden
         }
 
-        private static bool UpdateVerfuegbar()
+        private static void Update_Updater(AppDomain identdomain)
         {
-            return File.Exists(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "//Update//Ident.dll");
+            Console.WriteLine("Updater-update wird durchgeführt!");
+            AppDomain.Unload(identdomain);
+
+            // sich selbst beenden und löschen
+            // neuen Updater bewegen und starten
+
+        }
+
+
+        private static bool App_Update_Verfuegbar()
+        {
+            return File.Exists(_path + "//Update//Ident.dll");
+        }
+
+        private static bool Updater_Update_Verfuegbar()
+        {
+            return File.Exists(_path + "//Update//Ident-Plus.exe");
         }
     }
 }

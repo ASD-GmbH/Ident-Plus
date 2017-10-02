@@ -16,9 +16,11 @@ namespace Ident
             throw new System.NotImplementedException();
         }
 
-        public void Update()
+        public bool AllowsUpdate()
         {
-            Console.WriteLine("Update wird ausgeführt!");
+            // true, wenn keine RDP-Sitzung offen
+            // wenn kein Update möglich ist, später per Callback darauf hinweisen, wenn es wieder möglich ist
+            return true;
         }
     }
 }

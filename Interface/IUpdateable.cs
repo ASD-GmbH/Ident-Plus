@@ -11,6 +11,6 @@ namespace Interface
     {
         void Run();
         void Terminate();
-        void Update();
+        bool AllowsUpdate();
     }
 }
