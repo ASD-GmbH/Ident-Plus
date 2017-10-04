@@ -49,7 +49,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="IdentPlusLib\IdentPlusLib.csproj">
+    <ProjectReference Include="..\IdentPlusLib\IdentPlusLib.csproj">
       <Project>{0904BEF3-FF6A-469C-95B8-F95DB3B69D81}</Project>
       <Name>IdentPlusLib</Name>
     </ProjectReference>

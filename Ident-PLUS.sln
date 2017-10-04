@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ident-PLUS", "Ident-PLUS.csproj", "{0863CD45-2213-40BA-AEA3-4BC2A1D6D522}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ident-PLUS", "Ident-PLUS\Ident-PLUS.csproj", "{0863CD45-2213-40BA-AEA3-4BC2A1D6D522}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spezifikation", "..\Spezifikation\Spezifikation.csproj", "{CB7B7046-0647-4B58-B547-2C9C59C2A00C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spezifikation", "Spezifikation\Spezifikation.csproj", "{CB7B7046-0647-4B58-B547-2C9C59C2A00C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentPlusLib", "IdentPlusLib\IdentPlusLib.csproj", "{0904BEF3-FF6A-469C-95B8-F95DB3B69D81}"
 EndProject
