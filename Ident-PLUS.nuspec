@@ -1,0 +1,26 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Ident-Plus</id>
+    <version>0.0.0.00000</version>
+    <authors>ASD Personalinformationssysteme GmbH</authors>
+    <owners>ASD Personalinformationssysteme GmbH</owners>
+    <language>de-DE</language>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>Bereitstellung von Anmeldedaten für Ident-Plus</summary>
+    <description>Bereitstellung von Anmeldedaten für Ident-Plus</description>
+    <releaseNotes></releaseNotes>
+    <projectUrl>https://github.com/ASD-GmbH/Ident-Plus</projectUrl>
+    <copyright>ASD Personalinformationssysteme GmbH 2017</copyright>
+    <dependencies>
+      <group targetFramework="net45">
+        <dependency id="AsyncIO" version="0.1.20.0" />
+        <dependency id="NetMQ" version="3.3.3.4" />
+      </group>
+    </dependencies>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="IdentPlusLib\bin\debug\IdentPlusLib.dll" target="lib\net45" />
+  </files>
+</package>
