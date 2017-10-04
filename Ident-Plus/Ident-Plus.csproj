@@ -4,13 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{421DAAE9-0DFC-48C9-8D5E-956DAF56E3C3}</ProjectGuid>
+    <ProjectGuid>{0863CD45-2213-40BA-AEA3-4BC2A1D6D522}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ASD.Ident_Plus</RootNamespace>
-    <AssemblyName>Ident-Plus</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <RootNamespace>Ident_PLUS</RootNamespace>
+    <AssemblyName>Ident-PLUS</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -49,9 +49,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Interface\Interface.csproj">
-      <Project>{852727f2-2bf0-41bc-857e-047d4aaff06a}</Project>
-      <Name>Interface</Name>
+    <ProjectReference Include="IdentPlusLib\IdentPlusLib.csproj">
+      <Project>{0904BEF3-FF6A-469C-95B8-F95DB3B69D81}</Project>
+      <Name>IdentPlusLib</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Ident-Plus")]
+[assembly: AssemblyTitle("Ident-PLUS")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Ident-Plus")]
+[assembly: AssemblyProduct("Ident-PLUS")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("421daae9-0dfc-48c9-8d5e-956daf56e3c3")]
+[assembly: Guid("0863cd45-2213-40ba-aea3-4bc2a1d6d522")]
 
 // Version information for an assembly consists of the following four values:
 //
