@@ -15,7 +15,7 @@ open Fake
 
 // ------------------------------------ vv Konfiguration
 
-let product = "Ident-Plus"
+let product = "Ident-PLUS"
 
 let buildnumber = match buildServer with
                   | Jenkins -> jenkinsBuildNumber.PadLeft(5, '0')
@@ -115,7 +115,7 @@ Target "Clean" ( fun _ ->
         then (fun _ -> [("MaxCpuCount","1") ; ("BuildInParallel","false") ; ("Verbosity", "Quiet")])
         else (fun _ -> [("MaxCpuCount","1") ; ("BuildInParallel","false")])
 
-   do_build1 product "" props [("./Ident-Plus.sln")] (if option_superfast_build then "Superfast" else "Build")
+   do_build1 product "" props [("./Ident-PLUS.sln")] (if option_superfast_build then "Superfast" else "Build")
    |> Log ""
 )
 
@@ -147,7 +147,7 @@ let find_assembly_name (csproj:string) : string =
 
 Target "Test" (fun _ ->
 
-    [ "./Ident-Plus_Specs/bin/debug/Ident-Plus_Specs.dll" ]
+    [ "./Spezifikation/bin/debug/Spezifikation.dll" ]
     |> NUnit (fun p ->
             {p with
                 DisableShadowCopy = true;
@@ -158,16 +158,28 @@ let do_zip sourcedir zipfile =
     !! (sourcedir @@ "**/*.*")
     |> Zip sourcedir zipfile
 
-Target "PackDeployables" (fun _ ->
 
+
+Target "PackDeployables" (fun _ ->
   CleanDir deploy_basedir
   CleanDir pack_basedir
+
+  CleanDir "./nuget"
+  NuGetPackDirectly (fun p -> {p with Version=version}) "./Ident-PLUS.nuspec"
+  FileHelper.CopyFiles pack_basedir (!!"./nuget/*.nupkg")
+  FileHelper.CopyFiles deploy_basedir (!!"./nuget/*.nupkg")
+  CleanDir "./nuget"
+
+  CleanDirs [pack_basedir]
+  FileHelper.CopyFiles (pack_basedir) ["./README.MD";"./LICENSE"]
   FileHelper.CopyRecursive ("./Ident-Plus/bin/Debug") (pack_basedir) true |> ignore
-  FileHelper.DeleteFiles (!!((pack_basedir@@"Demo") @@ "*.xml"))
-  FileHelper.DeleteFiles (!!((pack_basedir@@"Demo") @@ "*.pdb"))
+  FileHelper.DeleteFiles (!!((pack_basedir) @@ "*.xml"))
+  FileHelper.DeleteFiles (!!((pack_basedir) @@ "*.pdb"))
   do_zip pack_basedir (deploy_basedir @@ (product + "_" + version+".zip"))
+
   CleanDir pack_basedir
-)
+)    
+
 
 
 Target "Init" empty
