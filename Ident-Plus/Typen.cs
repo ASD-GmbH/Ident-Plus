@@ -10,14 +10,6 @@
             public string RDPUser { get; set; }
         };
 
-        public struct Konfigurationsdaten
-        {
-            public string Serveradresse { get; set; }
-            public string RDPBasisFile { get; set; }
-        }
-
-
-
         public enum ChipStatus
         {
             EinChip,

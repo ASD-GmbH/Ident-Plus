@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using IdentPlusLib;
 using Ident_PLUS.Properties;
+using static Ident_PLUS.Typen;
 
 namespace Ident_PLUS
 {
@@ -15,8 +17,9 @@ namespace Ident_PLUS
 
         private static NotifyIcon _trayIcon;
         private static IHardwareInterface _chipleser;
-        private static Typen.ChipStatus _chipStatus = Typen.ChipStatus.KeinChip;
+        private static ChipStatus _chipStatus = ChipStatus.KeinChip;
         private static IdentPlusClient _identplusclient;
+        private static String _rdpBasisPfad;
 
 
         [DllImport("kernel32.dll")]
@@ -31,21 +34,13 @@ namespace Ident_PLUS
 
         static void Main(string[] args)
         {
-            _identplusclient = new IdentPlusClient(new NetMQClient(System.Configuration.ConfigurationManager.ConnectionStrings["IdentPlusServer"].ConnectionString));
-            //var info = client.IdentDatenAbrufen(new Query("")).Result;
 
-            var konsolensichtbarkeit = args.Contains("/k") ? (int)Typen.Sichtbarkeit.sichtbar : (int)Typen.Sichtbarkeit.unsichtbar;
+
+            var konsolensichtbarkeit = args.Contains("/k") ? (int)Sichtbarkeit.sichtbar : (int)Sichtbarkeit.unsichtbar;
             var handle = GetConsoleWindow();
             ShowWindow(handle, konsolensichtbarkeit);
             Console.WriteLine(@"### Ident-PLUS Servicekonsole ###");
 
-
-            Extended_Main();
-            Application.Run();
-        }
-
-        private static void Extended_Main()
-        {
             var trayMenu = new ContextMenu();
             trayMenu.MenuItems.Add("Beenden", OnExit);
             _trayIcon = new NotifyIcon
@@ -56,9 +51,23 @@ namespace Ident_PLUS
                 Visible = true
             };
 
+            _rdpBasisPfad = System.Configuration.ConfigurationManager.AppSettings["RDPBasisPfad"];
+            var serveradresse = System.Configuration.ConfigurationManager.ConnectionStrings["IdentPlusServer"].ConnectionString;
+            if (serveradresse == "DEMO")
+            {
+                serveradresse = "tcp://127.0.0.1:15289";
+                var server = new NetMQServer(serveradresse, new IdentPlusServer(DemoData.Abfrage));
+            }
+
+            Console.WriteLine($"Nutze Datenserver unter {serveradresse}");
+            _identplusclient = new IdentPlusClient(new NetMQClient(serveradresse));
+
+
             Chipleser_verbinden();
 
+            Application.Run();
         }
+
 
 
         private static void OnExit(object sender, EventArgs e)
@@ -90,7 +99,7 @@ namespace Ident_PLUS
             {
                 var meldung = $"Verbunden: {verbindungsinfo}";
                 Console.WriteLine(meldung);
-                Program.Balloninfo("Com-Ports", meldung, 2000);
+                Balloninfo("Com-Ports", meldung, 2000);
                 _chipleser.Open();
             }
         }
@@ -104,13 +113,13 @@ namespace Ident_PLUS
 
         private static void OnChipAufgelegt(string chipID)
         {
-            if (_chipStatus == Typen.ChipStatus.KeinChip)
+            if (_chipStatus == ChipStatus.KeinChip)
             {
-                _chipStatus = Typen.ChipStatus.EinChip;
-                var reply = _identplusclient.IdentDatenAbrufen(new Query(chipID)).Result;
-                var userdaten = reply
+                _chipStatus = ChipStatus.EinChip;
+                Console.WriteLine(@"Chip aufgelegt, frage Nutzerdaten ab...");
+                var userdaten = Benutzer_nachschlagen(chipID);
                 Daten_anzeigen(userdaten);
-                RemoteSitzung.Start(userdaten.RDPUser, userdaten.RDPAddr, _config.RDPBasisFile);
+                RemoteSitzung.Start(userdaten.RDPUser, userdaten.RDPAddr, _rdpBasisPfad);
             }
         }
 
@@ -118,14 +127,14 @@ namespace Ident_PLUS
         {
             RemoteSitzung.Stop();
             KeinChip_Meldung_ausgeben();
-            _chipStatus = Typen.ChipStatus.KeinChip;
+            _chipStatus = ChipStatus.KeinChip;
         }
 
         private static void OnReaderGetrennt()
         {
             RemoteSitzung.Stop();
             _chipleser.Close();
-            _chipStatus = Typen.ChipStatus.KeinChip;
+            _chipStatus = ChipStatus.KeinChip;
             var dialogResult = Reader_getrennt_Dialog_ausgeben();
             if (dialogResult == DialogResult.Retry) Chipleser_verbinden();
             else Beenden();
@@ -133,11 +142,67 @@ namespace Ident_PLUS
 
         private static void OnMehrereChips()
         {
-            if (_chipStatus == Typen.ChipStatus.MehrereChips) return;
-            _chipStatus = Typen.ChipStatus.MehrereChips;
+            if (_chipStatus == ChipStatus.MehrereChips) return;
+            _chipStatus = ChipStatus.MehrereChips;
             RemoteSitzung.Stop();
             Mehrere_Chips_Dialog_ausgeben();
         }
+
+        private static Benutzer Benutzer_nachschlagen(string chipID)
+        {
+            var reply = _identplusclient.IdentDatenAbrufen(new Query(chipID)).Result;
+
+            if (reply is RDPInfos infos) return new Benutzer {ChipID = chipID, Name = infos.Name, RDPAddr = infos.RDPAdresse, RDPUser = infos.RDPUserName};
+            if (reply is InternalError error)
+            {
+            }
+            return new Benutzer { ChipID = chipID, Name = "???", RDPAddr = "", RDPUser = "" };
+        }
+
+        private static void Daten_anzeigen(Benutzer daten)
+        {
+            Console.WriteLine($@"Daten erhalten: ChipID:{daten.ChipID} - Name:{daten.Name} - RDP-Addr:{daten.RDPAddr} - RDP-User: {daten.RDPUser}");
+
+            Balloninfo("Daten erhalten",
+                        $"ChipID: {daten.ChipID} - {daten.Name}\nRDP: {daten.RDPUser} @ {daten.RDPAddr}\n",
+                        7500);
+        }
+
+
+        private static void KeinChip_Meldung_ausgeben()
+        {
+            Console.WriteLine("Kein Chip aufgelegt");
+
+            Balloninfo("Chip entfernt", "Der Chip wurde vom Lesegerät entfernt", 5000);
+        }
+
+
+        private static DialogResult Reader_getrennt_Dialog_ausgeben()
+        {
+            Console.WriteLine(@"Der verwendete Chipleser ist nicht mehr erreichbar. Wurde die Verbindung getrennt?");
+            DialogResult result = MessageBox.Show(
+                @"Verbindung zum Chipleser wurde getrennt! \nBitte neu verbinden.",
+                @"IO-Fehler",
+                MessageBoxButtons.RetryCancel,
+                MessageBoxIcon.Exclamation,
+                MessageBoxDefaultButton.Button1);
+            return result;
+        }
+
+
+        private static void Mehrere_Chips_Dialog_ausgeben()
+        {
+            Console.WriteLine(@"Mehrere Transponder sind aufgelegt.");
+            Console.WriteLine(@"Bitte alle Transponder entfernen und anschließend nur einen auflegen.");
+            MessageBox.Show(
+                "Mehrere Transponder sind aufgelegt.\nBitte alle Transponder entfernen und anschließend nur einen auflegen.",
+                @"Mehrere Transponder",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Exclamation,
+                MessageBoxDefaultButton.Button1);
+        }
+
+
 
         private static DialogResult Kein_Reader_gefunden_Dialog_ausgeben()
         {
