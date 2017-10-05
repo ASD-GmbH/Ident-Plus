@@ -33,9 +33,9 @@ namespace Ident_PLUS
         public static Tuple<Datafox_TSHRW38_SerialPort, string> Initialisiere_Chipleser(Action<string> chip_wurde_aufgelegt, Action chip_wurde_entfernt, Action reader_wurde_getrennt, Action mehrere_Chips_erkannt)
         {
             var readerinfos = Suche_nach_gisreader();
+            if (readerinfos == null) return null;
             var geraeteID = readerinfos.Item1;
             var comportName = readerinfos.Item2;
-            if (comportName == null) return null;
             var port = Initialisiere_Seriellen_Port(comportName);
             return new Tuple<Datafox_TSHRW38_SerialPort, string>(
                 new Datafox_TSHRW38_SerialPort(port, chip_wurde_aufgelegt, chip_wurde_entfernt, reader_wurde_getrennt, mehrere_Chips_erkannt),

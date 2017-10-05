@@ -34,19 +34,24 @@ namespace Ident_PLUS
 
         static void Main(string[] args)
         {
-
-
             var konsolensichtbarkeit = args.Contains("/k") ? (int)Sichtbarkeit.sichtbar : (int)Sichtbarkeit.unsichtbar;
             var handle = GetConsoleWindow();
             ShowWindow(handle, konsolensichtbarkeit);
+
+            Extended_Main();
+            Application.Run();
+        }
+
+        private static void Extended_Main()
+        {
             Console.WriteLine(@"### Ident-PLUS Servicekonsole ###");
 
             var trayMenu = new ContextMenu();
             trayMenu.MenuItems.Add("Beenden", OnExit);
             _trayIcon = new NotifyIcon
             {
-                Text = @"RDP-Watcher",
-                Icon = Resources.p_plus_icon,
+                Text = @"ASD Ident-PLUS",
+                Icon = Resources.ident_plus,
                 ContextMenu = trayMenu,
                 Visible = true
             };
@@ -64,10 +69,7 @@ namespace Ident_PLUS
 
 
             Chipleser_verbinden();
-
-            Application.Run();
         }
-
 
 
         private static void OnExit(object sender, EventArgs e)
@@ -78,6 +80,7 @@ namespace Ident_PLUS
         public static void Beenden()
         {
             _trayIcon.Dispose();
+            _identplusclient.Dispose();
             if (Application.MessageLoop) Application.Exit(); // Schließen einer WinForms app
             else Environment.Exit(1); // Schließen einer Console app
         }
@@ -86,10 +89,9 @@ namespace Ident_PLUS
         private static void Chipleser_verbinden()
         {
             var ergebnis = Datafox_TSHRW38_SerialPort.Initialisiere_Chipleser(OnChipAufgelegt, OnChipEntfernt, OnReaderGetrennt, OnMehrereChips);
-            _chipleser = ergebnis.Item1;
-            var verbindungsinfo = ergebnis.Item2;
 
-            if (_chipleser == null)
+
+            if (ergebnis == null)
             {
                 var dialogResult = Kein_Reader_gefunden_Dialog_ausgeben();
                 if (dialogResult == DialogResult.Retry) Chipleser_verbinden();
@@ -97,6 +99,9 @@ namespace Ident_PLUS
             }
             else
             {
+                _chipleser = ergebnis.Item1;
+                var verbindungsinfo = ergebnis.Item2;
+
                 var meldung = $"Verbunden: {verbindungsinfo}";
                 Console.WriteLine(meldung);
                 Balloninfo("Com-Ports", meldung, 2000);
@@ -181,7 +186,7 @@ namespace Ident_PLUS
         {
             Console.WriteLine(@"Der verwendete Chipleser ist nicht mehr erreichbar. Wurde die Verbindung getrennt?");
             DialogResult result = MessageBox.Show(
-                @"Verbindung zum Chipleser wurde getrennt! \nBitte neu verbinden.",
+                "Verbindung zum Chipleser wurde getrennt!\nBitte neu verbinden.",
                 @"IO-Fehler",
                 MessageBoxButtons.RetryCancel,
                 MessageBoxIcon.Exclamation,
@@ -207,7 +212,7 @@ namespace Ident_PLUS
         private static DialogResult Kein_Reader_gefunden_Dialog_ausgeben()
         {
             DialogResult result = MessageBox.Show(
-                @"Es wurde kein Chipleser gefunden!\nBitte verbinden Sie das Gerät und versuchen Sie es erneut.",
+                "Es wurde kein Chipleser gefunden!\nBitte verbinden Sie das Gerät und versuchen Sie es erneut.",
                 @"IO-Fehler",
                 MessageBoxButtons.RetryCancel,
                 MessageBoxIcon.Exclamation,

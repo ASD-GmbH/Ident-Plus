@@ -63,9 +63,9 @@ namespace Ident_PLUS.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon p_plus_icon {
+        internal static System.Drawing.Icon ident_plus {
             get {
-                object obj = ResourceManager.GetObject("p_plus_icon", resourceCulture);
+                object obj = ResourceManager.GetObject("ident_plus", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
