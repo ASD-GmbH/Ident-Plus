@@ -39,8 +39,8 @@ namespace IdentPlusLib
             var bytes = System.Text.Encoding.UTF8.GetBytes(info);
             var buffer = new Byte[4 + 4 + bytes.Length];
             Array.Copy(BitConverter.GetBytes(Constants.REPLY_ERROR), 0, buffer, 0, 4);
-            Array.Copy(BitConverter.GetBytes(bytes.Length), 0, buffer, 8, 4);
-            Array.Copy(bytes, 0, buffer, 12, bytes.Length);
+            Array.Copy(BitConverter.GetBytes(bytes.Length), 0, buffer, 4, 4);
+            Array.Copy(bytes, 0, buffer, 8, bytes.Length);
             return buffer;
         }
 
