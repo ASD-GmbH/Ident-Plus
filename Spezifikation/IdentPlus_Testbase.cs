@@ -21,5 +21,13 @@ namespace Spezifikation
             SUT()(new Query("sagdhsa785d6aszuidsa78d6tzsajkldusa78tdzhasda")).Result.Should().Be(NotFound.Instance);
         }
 
+        [Test]
+        public void Fehler_werden_uebertragen()
+        {
+            var result = SUT()(new Query("DEMODATA_THROW")).Result;
+            result.Should().BeOfType<InternalError>();
+            ((InternalError) result).ErrorInfo.Should().Be(DemoData.TestFehlermeldung);
+        }
+
     }
 }
