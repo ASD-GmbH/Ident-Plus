@@ -19,6 +19,7 @@ namespace Ident_PLUS
         private static IHardwareInterface _chipleser;
         private static ChipStatus _chipStatus = ChipStatus.KeinChip;
         private static IdentPlusClient _identplusclient;
+        private static NetMQServer _demoNetMqServer;
         private static String _rdpBasisPfad;
 
 
@@ -37,15 +38,19 @@ namespace Ident_PLUS
             var konsolensichtbarkeit = args.Contains("/k") ? (int)Sichtbarkeit.sichtbar : (int)Sichtbarkeit.unsichtbar;
             var handle = GetConsoleWindow();
             ShowWindow(handle, konsolensichtbarkeit);
+            _rdpBasisPfad = System.Configuration.ConfigurationManager.AppSettings["RDPBasisPfad"];
 
-            Extended_Main();
+            Console.WriteLine(@"### Ident-PLUS Servicekonsole ###");
+
+            Tray_einrichten();
+            Datenserver_verbinden(System.Configuration.ConfigurationManager.ConnectionStrings["IdentPlusServer"].ConnectionString);
+            Chipleser_verbinden();
+
             Application.Run();
         }
 
-        private static void Extended_Main()
+        private static void Tray_einrichten()
         {
-            Console.WriteLine(@"### Ident-PLUS Servicekonsole ###");
-
             var trayMenu = new ContextMenu();
             trayMenu.MenuItems.Add("Beenden", OnExit);
             _trayIcon = new NotifyIcon
@@ -55,34 +60,19 @@ namespace Ident_PLUS
                 ContextMenu = trayMenu,
                 Visible = true
             };
+        }
 
-            _rdpBasisPfad = System.Configuration.ConfigurationManager.AppSettings["RDPBasisPfad"];
-            var serveradresse = System.Configuration.ConfigurationManager.ConnectionStrings["IdentPlusServer"].ConnectionString;
+
+        private static void Datenserver_verbinden(string serveradresse)
+        {
             if (serveradresse == "DEMO")
             {
                 serveradresse = "tcp://127.0.0.1:15289";
-                var server = new NetMQServer(serveradresse, new IdentPlusServer(DemoData.Abfrage));
+                _demoNetMqServer = new NetMQServer(serveradresse, new IdentPlusServer(DemoData.Abfrage));
             }
 
             Console.WriteLine($"Nutze Datenserver unter {serveradresse}");
             _identplusclient = new IdentPlusClient(new NetMQClient(serveradresse));
-
-
-            Chipleser_verbinden();
-        }
-
-
-        private static void OnExit(object sender, EventArgs e)
-        {
-            Beenden();
-        }
-
-        public static void Beenden()
-        {
-            _trayIcon.Dispose();
-            _identplusclient.Dispose();
-            if (Application.MessageLoop) Application.Exit(); // Schließen einer WinForms app
-            else Environment.Exit(1); // Schließen einer Console app
         }
 
 
@@ -109,12 +99,22 @@ namespace Ident_PLUS
             }
         }
 
-        private static void Balloninfo(string title, string text, int duration)
+
+        private static void OnExit(object sender, EventArgs e)
         {
-            _trayIcon.BalloonTipTitle = title;
-            _trayIcon.BalloonTipText = text;
-            _trayIcon.ShowBalloonTip(duration);
+            Beenden();
         }
+
+        public static void Beenden()
+        {
+            _trayIcon?.Dispose();
+            _identplusclient?.Dispose();
+            _demoNetMqServer?.Dispose();
+            if (Application.MessageLoop) Application.Exit(); // Schließen einer WinForms app
+            else Environment.Exit(1); // Schließen einer Console app
+        }
+
+
 
         private static void OnChipAufgelegt(string chipID)
         {
@@ -160,9 +160,11 @@ namespace Ident_PLUS
             if (reply is RDPInfos infos) return new Benutzer {ChipID = chipID, Name = infos.Name, RDPAddr = infos.RDPAdresse, RDPUser = infos.RDPUserName};
             if (reply is InternalError error)
             {
+                Datenfehler_Meldung_ausgeben(error);
             }
             return new Benutzer { ChipID = chipID, Name = "???", RDPAddr = "", RDPUser = "" };
         }
+
 
         private static void Daten_anzeigen(Benutzer daten)
         {
@@ -220,5 +222,24 @@ namespace Ident_PLUS
             return result;
         }
 
+
+        private static void Datenfehler_Meldung_ausgeben(InternalError error)
+        {
+            Console.WriteLine(@"Kommunikationsfehler: " + error);
+            MessageBox.Show(
+                @"Bei der Abfrage der Daten vom Server ist ein Fehler aufgetreten: " + error,
+                @"Kommunikationsfehler",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Exclamation,
+                MessageBoxDefaultButton.Button1);
+        }
+
+
+        private static void Balloninfo(string title, string text, int duration)
+        {
+            _trayIcon.BalloonTipTitle = title;
+            _trayIcon.BalloonTipText = text;
+            _trayIcon.ShowBalloonTip(duration);
+        }
     }
 }

@@ -77,19 +77,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\p-plus_icon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\ident-plus.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\ident_plus.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Icon1.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Identplus-icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
