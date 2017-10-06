@@ -22,6 +22,7 @@ namespace Ident_PLUS
         private static IdentPlusClient _identplusclient;
         private static NetMQServer _demoNetMqServer;
         private static String _rdpBasis;
+        private static int _konsolensichtbarkeit;
 
 
         [DllImport("kernel32.dll")]
@@ -36,9 +37,10 @@ namespace Ident_PLUS
 
         static void Main(string[] args)
         {
-            var konsolensichtbarkeit = args.Contains("/k") ? (int)Sichtbarkeit.sichtbar : (int)Sichtbarkeit.unsichtbar;
+            //var konsolensichtbarkeit = args.Contains("/k") ? (int)Sichtbarkeit.sichtbar : (int)Sichtbarkeit.unsichtbar;
+            _konsolensichtbarkeit = args.Contains("/k") ? (int)Sichtbarkeit.sichtbar : (int)Sichtbarkeit.unsichtbar;
             var handle = GetConsoleWindow();
-            ShowWindow(handle, konsolensichtbarkeit);
+            ShowWindow(handle, _konsolensichtbarkeit);
             Console.WriteLine(@"### Ident-PLUS Servicekonsole ###");
 
             _trayIcon = Tray_einrichten();
@@ -69,6 +71,7 @@ namespace Ident_PLUS
         {
             var trayMenu = new ContextMenu();
             trayMenu.MenuItems.Add("Beenden", OnExit);
+            trayMenu.MenuItems.Add("Konsole an-/ausschalten", ToggleKonsole);
             return new NotifyIcon
             {
                 Text = @"ASD Ident-PLUS",
@@ -84,12 +87,13 @@ namespace Ident_PLUS
             var folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
             var rdpGrundeinstellungen = (rdpBasisDatei != "" ? rdpBasisDatei : $"{folder}\\basis.rdp"); // Fallback auf RDP-Basis im App-Verzeichnis
 
-            Console.WriteLine(@"Nutze RDP-Basiseinstellungen aus " + rdpGrundeinstellungen);
 
-            if (File.Exists(rdpGrundeinstellungen)) return File.ReadAllText(rdpGrundeinstellungen);
-
-            Keine_RDPBasis_gefunden_Meldung_ausgeben(rdpGrundeinstellungen);
-            Beenden();
+            if (File.Exists(rdpGrundeinstellungen))
+            {
+                Console.WriteLine(@"Nutze RDP-Basiseinstellungen aus " + rdpGrundeinstellungen);
+                return File.ReadAllText(rdpGrundeinstellungen);
+            }
+            Console.WriteLine($@"Nutze KEINE RDP-Grundeinstellungen. ({rdpGrundeinstellungen} wurde nicht gefunden)");
             return "";
 
         }
@@ -124,7 +128,7 @@ namespace Ident_PLUS
             Beenden();
         }
 
-        public static void Beenden()
+        private static void Beenden()
         {
             _trayIcon?.Dispose();
             _identplusclient?.Dispose();
@@ -195,16 +199,6 @@ namespace Ident_PLUS
         }
 
 
-        private static void Keine_RDPBasis_gefunden_Meldung_ausgeben(string rdpGrundeinstellungen)
-        {
-            MessageBox.Show($@"Die Datei mit den RDP-Grundeinstellungen ({rdpGrundeinstellungen}) wurde nicht gefunden! Das Programm wird beendet.",
-                @"Quelle fehlt",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Error,
-                MessageBoxDefaultButton.Button1);
-        }
-
-
         private static void KeinChip_Meldung_ausgeben()
         {
             Console.WriteLine("Kein Chip aufgelegt");
@@ -269,6 +263,13 @@ namespace Ident_PLUS
             _trayIcon.BalloonTipTitle = title;
             _trayIcon.BalloonTipText = text;
             _trayIcon.ShowBalloonTip(duration);
+        }
+
+        private static void ToggleKonsole(object sender, EventArgs e)
+        {
+            _konsolensichtbarkeit = _konsolensichtbarkeit == (int) Sichtbarkeit.unsichtbar ? (int) Sichtbarkeit.sichtbar : (int) Sichtbarkeit.unsichtbar;
+            var handle = GetConsoleWindow();
+            ShowWindow(handle, _konsolensichtbarkeit);
         }
     }
 }
