@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -20,7 +21,7 @@ namespace Ident_PLUS
         private static ChipStatus _chipStatus = ChipStatus.KeinChip;
         private static IdentPlusClient _identplusclient;
         private static NetMQServer _demoNetMqServer;
-        private static String _rdpBasisPfad;
+        private static String _rdpBasis;
 
 
         [DllImport("kernel32.dll")]
@@ -38,22 +39,37 @@ namespace Ident_PLUS
             var konsolensichtbarkeit = args.Contains("/k") ? (int)Sichtbarkeit.sichtbar : (int)Sichtbarkeit.unsichtbar;
             var handle = GetConsoleWindow();
             ShowWindow(handle, konsolensichtbarkeit);
-            _rdpBasisPfad = System.Configuration.ConfigurationManager.AppSettings["RDPBasisPfad"];
-
             Console.WriteLine(@"### Ident-PLUS Servicekonsole ###");
 
-            Tray_einrichten();
-            Datenserver_verbinden(System.Configuration.ConfigurationManager.ConnectionStrings["IdentPlusServer"].ConnectionString);
+            _trayIcon = Tray_einrichten();
+            _rdpBasis = Lade_RDPBasis(System.Configuration.ConfigurationManager.AppSettings["RDPBasisDatei"]);
+
+            var serveradresse = System.Configuration.ConfigurationManager.ConnectionStrings["IdentPlusServer"].ConnectionString;
+            if (serveradresse == "DEMO")
+            {
+                const string demoadresse = "tcp://127.0.0.1:15289";
+                Console.WriteLine($@"Nutze lokalen DEMO-Datenserver unter {demoadresse}");
+                _demoNetMqServer = new NetMQServer(demoadresse, new IdentPlusServer(DemoData.Abfrage));
+                _identplusclient = new IdentPlusClient(new NetMQClient(demoadresse));
+            }
+            else
+            {
+                Console.WriteLine($@"Nutze Datenserver unter {serveradresse}");
+                _identplusclient = new IdentPlusClient(new NetMQClient(serveradresse));
+            }
+
             Chipleser_verbinden();
 
             Application.Run();
         }
 
-        private static void Tray_einrichten()
+
+
+        private static NotifyIcon Tray_einrichten()
         {
             var trayMenu = new ContextMenu();
             trayMenu.MenuItems.Add("Beenden", OnExit);
-            _trayIcon = new NotifyIcon
+            return new NotifyIcon
             {
                 Text = @"ASD Ident-PLUS",
                 Icon = Resources.ident_plus,
@@ -63,16 +79,19 @@ namespace Ident_PLUS
         }
 
 
-        private static void Datenserver_verbinden(string serveradresse)
+        private static string Lade_RDPBasis(string rdpBasisDatei)
         {
-            if (serveradresse == "DEMO")
-            {
-                serveradresse = "tcp://127.0.0.1:15289";
-                _demoNetMqServer = new NetMQServer(serveradresse, new IdentPlusServer(DemoData.Abfrage));
-            }
+            var folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+            var rdpGrundeinstellungen = (rdpBasisDatei != "" ? rdpBasisDatei : $"{folder}\\basis.rdp"); // Fallback auf RDP-Basis im App-Verzeichnis
 
-            Console.WriteLine($"Nutze Datenserver unter {serveradresse}");
-            _identplusclient = new IdentPlusClient(new NetMQClient(serveradresse));
+            Console.WriteLine(@"Nutze RDP-Basiseinstellungen aus " + rdpGrundeinstellungen);
+
+            if (File.Exists(rdpGrundeinstellungen)) return File.ReadAllText(rdpGrundeinstellungen);
+
+            Keine_RDPBasis_gefunden_Meldung_ausgeben(rdpGrundeinstellungen);
+            Beenden();
+            return "";
+
         }
 
 
@@ -124,7 +143,7 @@ namespace Ident_PLUS
                 Console.WriteLine(@"Chip aufgelegt, frage Nutzerdaten ab...");
                 var userdaten = Benutzer_nachschlagen(chipID);
                 Daten_anzeigen(userdaten);
-                RemoteSitzung.Start(userdaten.RDPUser, userdaten.RDPAddr, _rdpBasisPfad);
+                RemoteSitzung.Start(userdaten.RDPUser, userdaten.RDPAddr, _rdpBasis);
             }
         }
 
@@ -173,6 +192,16 @@ namespace Ident_PLUS
             Balloninfo("Daten erhalten",
                         $"ChipID: {daten.ChipID} - {daten.Name}\nRDP: {daten.RDPUser} @ {daten.RDPAddr}\n",
                         7500);
+        }
+
+
+        private static void Keine_RDPBasis_gefunden_Meldung_ausgeben(string rdpGrundeinstellungen)
+        {
+            MessageBox.Show($@"Die Datei mit den RDP-Grundeinstellungen ({rdpGrundeinstellungen}) wurde nicht gefunden! Das Programm wird beendet.",
+                @"Quelle fehlt",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error,
+                MessageBoxDefaultButton.Button1);
         }
 
 

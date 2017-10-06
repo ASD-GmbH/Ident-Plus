@@ -12,34 +12,18 @@ namespace Ident_PLUS
         private static string Folder { set; get; } = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
 
 
-        public static void Start(string rdp_username, string rdp_adresse, string rdp_basis_pfad)
+        public static void Start(string rdp_username, string rdp_adresse, string rdp_basis)
         {
             if (TscPid != 0) Stop();
             if (rdp_adresse != "")
             {
-                {
-                    var RDPGrundeinstellungen = $"{(rdp_basis_pfad != "" ? rdp_basis_pfad : Folder)}\\basis.rdp"; // Fallback auf RDP-Basis im App-Verzeichnis
-                    if (File.Exists(RDPGrundeinstellungen))
-                    {
-                        string text = File.ReadAllText(RDPGrundeinstellungen);
-                        text = text + $"username:s:{rdp_username}";
-                        File.WriteAllText($"{Folder}\\ASDRDP.rdp", text);
-                        var p = new Process();
-                        p.StartInfo.FileName = "c:\\windows\\system32\\mstsc.exe";
-                        p.StartInfo.Arguments = $"{Folder}\\ASDRDP.rdp /v:{rdp_adresse}";
-                        p.Start();
-                        TscPid = p.Id;
-                    }
-                    else
-                    {
-                        MessageBox.Show($@"Die Datei mit den RDP-Grundeinstellungen ({RDPGrundeinstellungen}) wurde nicht gefunden! Das Programm wird beendet.",
-                            @"Quelle fehlt",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error,
-                            MessageBoxDefaultButton.Button1);
-                        Program.Beenden();
-                    }
-                }
+                var text = rdp_basis + $"username:s:{rdp_username}";
+                File.WriteAllText($"{Folder}\\ASDRDP.rdp", text);
+                var p = new Process();
+                p.StartInfo.FileName = "c:\\windows\\system32\\mstsc.exe";
+                p.StartInfo.Arguments = $"{Folder}\\ASDRDP.rdp /v:{rdp_adresse}";
+                p.Start();
+                TscPid = p.Id;
             }
         }
 
