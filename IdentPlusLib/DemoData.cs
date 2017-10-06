@@ -11,8 +11,8 @@ namespace IdentPlusLib
         public static Task<Reply> Abfrage(Query query)
         {
             if (query.Token == "DEMODATA_THROW") return Task.FromResult((Reply) new InternalError(TestFehlermeldung));
-            if (query.Token == Token1) return Task.FromResult((Reply)new RDPInfos("Jan Dübbers", "web", "ASDOS\\jdübbers"));
-            if (query.Token == Token2) return Task.FromResult((Reply)new RDPInfos("Hans Wurst", "", "hw"));
+            if (query.Token == Token1) return Task.FromResult((Reply)new RDPInfos("Ulla Meise", "web", "umeise"));
+            if (query.Token == Token2) return Task.FromResult((Reply)new RDPInfos("Hans Wurst", "web", "hw"));
             return Task.FromResult(NotFound.Instance);
         }
     }
