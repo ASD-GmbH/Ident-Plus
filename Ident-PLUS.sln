@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spezifikation", "Spezifikat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentPlusLib", "IdentPlusLib\IdentPlusLib.csproj", "{0904BEF3-FF6A-469C-95B8-F95DB3B69D81}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ident-PLUS-TestClient", "Ident-PLUS-TestClient\Ident-PLUS-TestClient.csproj", "{20DBF11F-776C-4A63-B85B-A78AEA741D20}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0904BEF3-FF6A-469C-95B8-F95DB3B69D81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0904BEF3-FF6A-469C-95B8-F95DB3B69D81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0904BEF3-FF6A-469C-95B8-F95DB3B69D81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20DBF11F-776C-4A63-B85B-A78AEA741D20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20DBF11F-776C-4A63-B85B-A78AEA741D20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20DBF11F-776C-4A63-B85B-A78AEA741D20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20DBF11F-776C-4A63-B85B-A78AEA741D20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
