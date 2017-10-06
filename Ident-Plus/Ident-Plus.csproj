@@ -33,6 +33,9 @@
   <PropertyGroup>
     <ApplicationIcon>Resources\ident_plus.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -62,7 +65,9 @@
     <Compile Include="Typen.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IdentPlusLib\IdentPlusLib.csproj">
