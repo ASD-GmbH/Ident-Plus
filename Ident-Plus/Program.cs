@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using IdentPlusLib;
 using Ident_PLUS.Properties;
@@ -13,7 +10,7 @@ using static Ident_PLUS.Typen;
 
 namespace Ident_PLUS
 {
-    class Program
+    static class Program
     {
 
         private static NotifyIcon _trayIcon;
@@ -33,11 +30,8 @@ namespace Ident_PLUS
 
 
 
-
-
         static void Main(string[] args)
         {
-            //var konsolensichtbarkeit = args.Contains("/k") ? (int)Sichtbarkeit.sichtbar : (int)Sichtbarkeit.unsichtbar;
             _konsolensichtbarkeit = args.Contains("/k") ? (int)Sichtbarkeit.sichtbar : (int)Sichtbarkeit.unsichtbar;
             var handle = GetConsoleWindow();
             ShowWindow(handle, _konsolensichtbarkeit);
@@ -87,7 +81,6 @@ namespace Ident_PLUS
             var folder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
             var rdpGrundeinstellungen = (rdpBasisDatei != "" ? rdpBasisDatei : $"{folder}\\basis.rdp"); // Fallback auf RDP-Basis im App-Verzeichnis
 
-
             if (File.Exists(rdpGrundeinstellungen))
             {
                 Console.WriteLine(@"Nutze RDP-Basiseinstellungen aus " + rdpGrundeinstellungen);
@@ -95,15 +88,12 @@ namespace Ident_PLUS
             }
             Console.WriteLine($@"Nutze KEINE RDP-Grundeinstellungen. ({rdpGrundeinstellungen} wurde nicht gefunden)");
             return "";
-
         }
 
 
         private static void Chipleser_verbinden()
         {
             var ergebnis = Datafox_TSHRW38_SerialPort.Initialisiere_Chipleser(OnChipAufgelegt, OnChipEntfernt, OnReaderGetrennt, OnMehrereChips);
-
-
             if (ergebnis == null)
             {
                 var dialogResult = Kein_Reader_gefunden_Dialog_ausgeben();
@@ -134,7 +124,7 @@ namespace Ident_PLUS
             _identplusclient?.Dispose();
             _demoNetMqServer?.Dispose();
             if (Application.MessageLoop) Application.Exit(); // Schließen einer WinForms app
-            else Environment.Exit(1); // Schließen einer Console app
+            else Environment.Exit(0); // Schließen einer Console app
         }
 
 
@@ -192,7 +182,6 @@ namespace Ident_PLUS
         private static void Daten_anzeigen(Benutzer daten)
         {
             Console.WriteLine($@"Daten erhalten: ChipID:{daten.ChipID} - Name:{daten.Name} - RDP-Addr:{daten.RDPAddr} - RDP-User: {daten.RDPUser}");
-
             Balloninfo("Daten erhalten",
                         $"ChipID: {daten.ChipID} - {daten.Name}\nRDP: {daten.RDPUser} @ {daten.RDPAddr}\n",
                         7500);
@@ -202,7 +191,6 @@ namespace Ident_PLUS
         private static void KeinChip_Meldung_ausgeben()
         {
             Console.WriteLine("Kein Chip aufgelegt");
-
             Balloninfo("Chip entfernt", "Der Chip wurde vom Lesegerät entfernt", 5000);
         }
 
