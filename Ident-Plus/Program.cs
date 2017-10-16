@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using IdentPlusLib;
 using Ident_PLUS.Properties;
@@ -168,14 +169,18 @@ namespace Ident_PLUS
 
         private static Benutzer Benutzer_nachschlagen(string chipID)
         {
-            var reply = _identplusclient.IdentDatenAbrufen(new Query(chipID)).Result;
+            var reply = _identplusclient.IdentDatenAbrufen(new Query(chipID)).ErgebnisOderTimeout(TimeSpan.FromSeconds(5));
 
             if (reply is RDPInfos infos) return new Benutzer {ChipID = chipID, Name = infos.Name, RDPAddr = infos.RDPAdresse, RDPUser = infos.RDPUserName};
-            if (reply is InternalError error)
-            {
-                Datenfehler_Meldung_ausgeben(error);
-            }
+            if (reply is InternalError error) Datenfehler_Meldung_ausgeben(error);
             return new Benutzer { ChipID = chipID, Name = "???", RDPAddr = "", RDPUser = "" };
+        }
+
+
+        private static Reply ErgebnisOderTimeout<T>(this Task<T> task, TimeSpan timeout)
+        {
+            if (!task.Wait(timeout)) return new InternalError("Es wurde keine Antwort vom Server erhalten (Timeout).\nBitte stellen Sie sicher, dass der Server läuft und erreichbar ist.");
+            return (Reply) task.Result;
         }
 
 
@@ -190,7 +195,7 @@ namespace Ident_PLUS
 
         private static void KeinChip_Meldung_ausgeben()
         {
-            Console.WriteLine("Kein Chip aufgelegt");
+            Console.WriteLine(@"Kein Chip aufgelegt");
             Balloninfo("Chip entfernt", "Der Chip wurde vom Lesegerät entfernt", 5000);
         }
 
@@ -236,9 +241,9 @@ namespace Ident_PLUS
 
         private static void Datenfehler_Meldung_ausgeben(InternalError error)
         {
-            Console.WriteLine(@"Kommunikationsfehler: " + error);
+            Console.WriteLine(@"Kommunikationsfehler: " + error.ErrorInfo);
             MessageBox.Show(
-                @"Bei der Abfrage der Daten vom Server ist ein Fehler aufgetreten: " + error,
+                "Bei der Abfrage der Daten vom Server ist ein Fehler aufgetreten:\n" + error.ErrorInfo,
                 @"Kommunikationsfehler",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Exclamation,
