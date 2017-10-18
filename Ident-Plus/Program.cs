@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using IdentPlusLib;
 using Ident_PLUS.Properties;
@@ -219,7 +218,11 @@ namespace Ident_PLUS
             var reply = _identplusclient.IdentDatenAbrufen(new Query(chipID)).ErgebnisOderTimeout(TimeSpan.FromSeconds(5));
 
             if (reply is RDPInfos infos) return new Benutzer {ChipID = chipID, Name = infos.Name, RDPAddr = infos.RDPAdresse, RDPUser = infos.RDPUserName};
-            if (reply is InternalError error) Datenfehler_Meldung_ausgeben(error);
+            if (reply is InternalError error)
+            {
+                Datenfehler_Meldung_ausgeben(error);
+                Auf_Update_Pruefen_und_durchfuehren();
+            }
             return new Benutzer { ChipID = chipID, Name = "???", RDPAddr = "", RDPUser = "" };
         }
 
@@ -290,7 +293,9 @@ namespace Ident_PLUS
         {
             Console.WriteLine(@"Kommunikationsfehler: " + error.ErrorInfo);
             MessageBox.Show(
-                "Bei der Abfrage der Daten vom Server ist ein Fehler aufgetreten:\n" + error.ErrorInfo,
+                "Bei der Abfrage der Benutzerinformationen meldet der Server: \n"
+                + error.ErrorInfo +
+                "\nBitte entfernen Sie den Chip und bestätigen mit 'OK'.",
                 @"Kommunikationsfehler",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Exclamation,
