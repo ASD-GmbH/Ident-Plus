@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using IdentPlusLib;
@@ -21,7 +20,7 @@ namespace Ident_PLUS
         private static IdentPlusClient _identplusclient;
         private static NetMQServer _demoNetMqServer;
         private static Updater _updater;
-        private static bool _updateStehtAn = false;
+        private static bool _updateStehtAn;
         private static String _rdpBasis;
         private static int _konsolensichtbarkeit;
 
@@ -42,7 +41,7 @@ namespace Ident_PLUS
 
             _updater = Updater.Create((warning) => { Console.WriteLine($@"UPDATER: {warning}"); });
             Auf_Update_Pruefen_und_durchfuehren();
-            _updater.SchedulePeriodicUpdateChecks(TimeSpan.FromMinutes(30), Auf_Update_Pruefen_und_durchfuehren );
+            _updater.SchedulePeriodicUpdateChecks(TimeSpan.FromHours(4), Auf_Update_Pruefen_und_durchfuehren );
 
             _trayIcon = Tray_einrichten();
             _rdpBasis = Lade_RDPBasis(System.Configuration.ConfigurationManager.AppSettings["RDPBasisDatei"]);
@@ -65,7 +64,6 @@ namespace Ident_PLUS
 
             Application.Run();
         }
-
 
 
         private static void Auf_Update_Pruefen_und_durchfuehren()
@@ -172,7 +170,6 @@ namespace Ident_PLUS
             if (Application.MessageLoop) Application.Exit(); // Schließen einer WinForms app
             else Environment.Exit(0); // Schließen einer Console app
         }
-
 
 
         private static void OnChipAufgelegt(string chipID)
