@@ -22,6 +22,7 @@ namespace Ident_PLUS
         private static IdentPlusClient _identplusclient;
         private static NetMQServer _demoNetMqServer;
         private static Updater _updater;
+        private static bool _updateStehtAn = false;
         private static String _rdpBasis;
         private static int _konsolensichtbarkeit;
 
@@ -70,29 +71,39 @@ namespace Ident_PLUS
 
         private static void Auf_Update_Pruefen_und_durchfuehren()
         {
+            Auf_Update_Pruefen();
+            if (_updateStehtAn) Update_durchfuehren();
+        }
+
+        private static void Auf_Update_Pruefen()
+        {
             if (_updater != null)
             {
                 Console.Write(@"Update Check: ");
                 if (_updater.UpdatesAvailable())
                 {
                     Console.WriteLine($@"Update verfügbar! (Version {_updater.AvailableVersion().Trim()})");
-
-                    if (_chipStatus == ChipStatus.KeinChip)
-                    {
-                        Console.WriteLine(@"Update wird durchgeführt!");
-                        _updater.UpdateNow((info) => {Console.WriteLine($@"UPDATER: {info}");});
-                        System.Threading.Thread.Sleep(3000);
-                    }
-                    else
-                    {
-                        Console.WriteLine(@"Chip ist derzeit aufgelegt - Update wird zurückgestellt!");
-                    }
+                    _updateStehtAn = true;
                 }
                 else
                 {
                     Console.WriteLine(@"Die verwendete Version ist aktuell!");
                 }
             }
+        }
+
+        private static void Update_durchfuehren()
+        {
+                if (_chipStatus == ChipStatus.KeinChip)
+                {
+                    Console.WriteLine(@"Update wird durchgeführt!");
+                    _updater.UpdateNow((info) => { Console.WriteLine($@"UPDATER: {info}"); });
+                    _updateStehtAn = false;
+                }
+                else
+                {
+                    Console.WriteLine(@"Chip ist derzeit aufgelegt - Update wird zurückgestellt!");
+                }
         }
 
 
@@ -182,6 +193,7 @@ namespace Ident_PLUS
             RemoteSitzung.Stop();
             KeinChip_Meldung_ausgeben();
             _chipStatus = ChipStatus.KeinChip;
+            if (_updateStehtAn) Update_durchfuehren();
         }
 
         private static void OnReaderGetrennt()
