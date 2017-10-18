@@ -2,11 +2,13 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using IdentPlusLib;
 using Ident_PLUS.Properties;
+using ClientDeploy;
 using static Ident_PLUS.Typen;
 
 namespace Ident_PLUS
@@ -19,6 +21,7 @@ namespace Ident_PLUS
         private static ChipStatus _chipStatus = ChipStatus.KeinChip;
         private static IdentPlusClient _identplusclient;
         private static NetMQServer _demoNetMqServer;
+        private static Updater _updater;
         private static String _rdpBasis;
         private static int _konsolensichtbarkeit;
 
@@ -30,13 +33,16 @@ namespace Ident_PLUS
         static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
 
-
         static void Main(string[] args)
         {
             _konsolensichtbarkeit = args.Contains("/k") ? (int)Sichtbarkeit.sichtbar : (int)Sichtbarkeit.unsichtbar;
             var handle = GetConsoleWindow();
             ShowWindow(handle, _konsolensichtbarkeit);
             Console.WriteLine(@"### Ident-PLUS Servicekonsole ###");
+
+            _updater = Updater.Create((warning) => { Console.WriteLine($@"UPDATER: {warning}"); });
+            Auf_Update_Pruefen_und_durchfuehren();
+            _updater.SchedulePeriodicUpdateChecks(TimeSpan.FromMinutes(30), Auf_Update_Pruefen_und_durchfuehren );
 
             _trayIcon = Tray_einrichten();
             _rdpBasis = Lade_RDPBasis(System.Configuration.ConfigurationManager.AppSettings["RDPBasisDatei"]);
@@ -60,6 +66,34 @@ namespace Ident_PLUS
             Application.Run();
         }
 
+
+
+        private static void Auf_Update_Pruefen_und_durchfuehren()
+        {
+            if (_updater != null)
+            {
+                Console.Write(@"Update Check: ");
+                if (_updater.UpdatesAvailable())
+                {
+                    Console.WriteLine($@"Update verfügbar! (Version {_updater.AvailableVersion().Trim()})");
+
+                    if (_chipStatus == ChipStatus.KeinChip)
+                    {
+                        Console.WriteLine(@"Update wird durchgeführt!");
+                        _updater.UpdateNow((info) => {Console.WriteLine($@"UPDATER: {info}");});
+                        System.Threading.Thread.Sleep(3000);
+                    }
+                    else
+                    {
+                        Console.WriteLine(@"Chip ist derzeit aufgelegt - Update wird zurückgestellt!");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(@"Die verwendete Version ist aktuell!");
+                }
+            }
+        }
 
 
         private static NotifyIcon Tray_einrichten()
@@ -122,6 +156,7 @@ namespace Ident_PLUS
         private static void Beenden()
         {
             _trayIcon?.Dispose();
+            _updater?.Dispose();
             _identplusclient?.Dispose();
             _demoNetMqServer?.Dispose();
             if (Application.MessageLoop) Application.Exit(); // Schließen einer WinForms app
