@@ -10,6 +10,9 @@ Das Programm Ident-PLUS dient dazu, das Öffnen einer Remote-Desktop-Verbindung 
 * Wenn der Chip vom Leser entfernt wird, wird die Verbindung geschlossen.
 * Liegt mehr als ein Chip gleichzeitig auf dem Leser, wird eine Fehlermeldung ausgegeben und das Programm gesperrt, bis sämtliche Chips vom Leser entfernt werden. Erst dann kann es wieder normal weiterverwendet werden.
 
+Standardmäßig startet Ident-PLUS nur als Tray-Icon und informiert den Nutzer über Windows-Notifications über aufgelegte oder entfernte Chips usw.  
+Falls nötig kann aber auch ein Konsolenfenster aktiviert werden, in dem weitere Informationen zur Verfügung gestellt werden. Um die Konsole anzuzeigen, kann Ident-PLUS mit dem Argument `/k` gestartet werden. Alternativ kann die Konsole im laufenden Betrieb über das Traymenü (Rechtsklick auf das Trayicon) an- bzw. ausgeschaltet werden.
+
 ## Konfiguration
 Zur Konfiguration wird die `Ident-PLUS.exe.config` im Programmverzeichnis verwendet.
 Hier werden die Datenquelle und die RDP-Basis festgelegt.
@@ -70,6 +73,8 @@ Ident-PLUS prüft zu verschiedenen Zeitpunkten, ob eine neue Programmversion vor
 3. Wenn bei einer Anfrage von Benutzerdaten an den Server, die Programmversion nicht mehr mit der auf dem Server hinterlegten Version übereinstimmt.
 
 Wenn im laufenden Betrieb ein Update ansteht, wird zunächst geprüft, ob derzeit ein Chip auf dem Lesegerät aufliegt. Ist dies der Fall, wird das Update zunächst zurückgestellt und erst ausgeführt, sobald der Chip vom Leser entfernt wird.
+
+Wird ein Update durchgeführt, wird Ident-PLUS kurzzeitig beendet und sofort neu gestartet. Sollte zuvor die Konsole über das Traymenü geöffnet worden sein, wird sie beim Neustart nicht automatisch wieder geöffnet.
 
 ## Unterstützte Hardware
 
