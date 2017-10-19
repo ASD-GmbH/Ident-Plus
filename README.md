@@ -1,11 +1,9 @@
-*[ABK]: Abkürzungsbeispiel
-*[DLL]: Dynamic Link Library
 
 # Ident-PLUS
 
 Das Programm Ident-PLUS dient dazu, das Öffnen einer Remote-Desktop-Verbindung zu vereinfachen. Hierzu identifiziert sich der Anwender mittels RFID-Chip, woraufhin Ident-PLUS eine RDP-Verbindug zu einem hinterlegten Server öffnet und den Benutzernamen des Anwenders übergibt. Das ggf. für den Login benötigte Passwort wird explizit NICHT von Ident-PLUS gespeichert bzw. übergeben, sondern muss per Hand eingegeben werden.
 
-[TOC]
+
 
 ## Verhalten
 * Wird ein Chip auf den Leser aufgelegt, wird eine Remote-Desktop-Verbindung geöffnet.
@@ -15,14 +13,17 @@ Das Programm Ident-PLUS dient dazu, das Öffnen einer Remote-Desktop-Verbindung 
 ## Konfiguration
 Zur Konfiguration wird die `Ident-PLUS.exe.config` im Programmverzeichnis verwendet.
 Hier werden die Datenquelle und die RDP-Basis festgelegt.
+
 ### Datenquelle
-Als Quelle für die Nutzerdaten dient derzeit der P-PLUS-Server. Die entsprechende Ident-PLUS-Schnittstelle ist ab ==R-369== im Interchange-Modul (Tasks) integriert.
+Als Quelle für die Nutzerdaten dient derzeit der P-PLUS-Server. Die entsprechende Ident-PLUS-Schnittstelle ist ab R-369 im Interchange-Modul (Tasks) integriert.  
 In der P-PLUS-Datenbank werden die Nutzerdaten in der Tabelle `IdentPLUS_Token` hinterlegt:
 
-...| token | user | displayname | rdp |
----| -------- | -------- | -------- | -------- | -------- |
-...| <chipnummer>| <rdp-username>   | <realname> | <rdp-adresse>|
-...|3084763134|m_mustermann|Max Mustermann|192.168.0.123|
+
+...| token          | user             | displayname    | rdp
+---| --------       | --------         | --------       | --------
+...| `<chipnummer>` | `<rdp-username>` | `<realname>`   | `<rdp-adresse>`
+...| 3084763134     | m_mustermann     | Max Mustermann | 192.168.0.123
+
 
 
 In der `Ident-PLUS.exe.config` wird Adresse und Port des P-PLUS-Servers hinterlegt:
@@ -51,14 +52,14 @@ Sollen für die RemoteDesktop-Verbindung bestimmte Grundeinstellungen wie z.B. A
 Wird keine .rdp-Datei vorgefunden, werden keinerlei Voreinstellungen verwendet.
 
 ## Installation und Updates
-Ident-PLUS verwendet [`ClientDeploy`](https://github.com/ASD-GmbH/ClientDeploy) zur Installation und zum Update. ClientDeploy besteht aus einer Serverkomponente, einem eigenständigen Installer und einer DLL die von Ident-PLUS verwendet wird.
+Ident-PLUS verwendet [ClientDeploy](https://github.com/ASD-GmbH/ClientDeploy) zur Installation und zum Update. ClientDeploy besteht aus einer Serverkomponente, einem eigenständigen Installer und einer DLL die von Ident-PLUS verwendet wird.  
 Der ClientDeploy-Server muss als erstes eingerichtet werden und stellt die verschiedenen Versionen der Anwendung zur Verfügung. In folgenden Beispielen wird davon ausgegangen, dass der ClientDeploy-Server bereits läuft und Ident-PLUS auf ihm zur Verfügung gestellt wurde.
 
 ### Installation
-Das ClientDeploy Setup wird wie folgt aufgerufen:
-`setup <repo> <product> <target>`
-`setup http://<ClientDeploy Server Adresse>:<Port>/repo IdentPLUS <Zielverzeichnis>`
-Die Angabe des *products* - hier IdentPLUS - ist case sensitive
+Das ClientDeploy Setup wird wie folgt aufgerufen:  
+`setup <repo> <product> <target>`  
+`setup http://<ClientDeploy Server Adresse>:<Port>/repo IdentPLUS <Zielverzeichnis>`  
+Die Angabe des *products* - hier IdentPLUS - ist case sensitive!
 
 Daraufhin wird die neuste vorliegende Version von Ident-PLUS vom Server heruntergeladen, im Zielverzeichnis installiert und für spätere Updates vorbereitet. Dafür werden das Unterverzeichnis `.clientdeploy` und die Datei `.clientdeploy.config` im Anwendungsverzeinis angelegt.
 
@@ -73,15 +74,7 @@ Wenn im laufenden Betrieb ein Update ansteht, wird zunächst geprüft, ob derzei
 ## Unterstützte Hardware
 
 
-
-
-
-[TS-HRW38-USB](http://www.gis-net.de/rfid/deutsch/13_56mhz/ts_hrw38.htm)      
-:   Reader der Firma GiS mbH.
-Diese Geräte werden per USB an den Rechner angeschlossen und kommunizieren  mit Ident-PLUS über einen virtuellen COM-Port. Beim Start des Programms wird die Windows-Registry nach einem PnP-Gerät mit passender Vendor-ID (`VID_1C40`) und Product-ID (`PID_05AC`) gesucht und der verwendete COM-Port ausgelesen. Anschließend verbindet sich Ident-PLUS mit diesem Gerät.
-    Damit die Daten in der erwarteten Form ausgegeben werden, müssen die Reader vor der ersten Verwendung noch entsprechend programmiert werden. Dazu wird von der [Hersteller-Webseite](http://www.gis-net.de/rfid/deutsch/13_56mhz/ts_hrw38.htm) das [ReaderSetup-Tool](http://www.gis-net.de/rfid/software/GiS%20TS-HRW%20ReaderSetup.exe) heruntergeladen und unter 'Konfigurieren' mit dem Button 'Laden' die Konfigurationsdaten aus der Datei `Chipleser TS-HRW38.mkr` geladen. Anschließend werden diese durch den Button 'Programmieren' auf den Reader übertragen.
-
-
-
-
-
+#### [TS-HRW38-USB](http://www.gis-net.de/rfid/deutsch/13_56mhz/ts_hrw38.htm)      
+Reader der Firma GiS mbH.  
+Diese Geräte werden per USB an den Rechner angeschlossen und kommunizieren  mit Ident-PLUS über einen virtuellen COM-Port. Beim Start des Programms wird die Windows-Registry nach einem PnP-Gerät mit passender Vendor-ID (`VID_1C40`) und Product-ID (`PID_05AC`) gesucht und der verwendete COM-Port ausgelesen. Anschließend verbindet sich Ident-PLUS mit diesem Gerät.  
+Damit die Daten in der erwarteten Form ausgegeben werden, müssen die Reader vor der ersten Verwendung noch entsprechend programmiert werden. Dazu wird von der [Hersteller-Webseite](http://www.gis-net.de/rfid/deutsch/13_56mhz/ts_hrw38.htm) das [ReaderSetup-Tool](http://www.gis-net.de/rfid/software/GiS%20TS-HRW%20ReaderSetup.exe) heruntergeladen und unter 'Konfigurieren' mit dem Button 'Laden' die Konfigurationsdaten aus der Datei `Chipleser TS-HRW38.mkr` geladen. Anschließend werden diese durch den Button 'Programmieren' auf den Reader übertragen.
