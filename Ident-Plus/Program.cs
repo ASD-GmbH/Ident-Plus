@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using IdentPlusLib;
 using Ident_PLUS.Properties;
+using ClientDeploy;
 using static Ident_PLUS.Typen;
 
 namespace Ident_PLUS
@@ -19,6 +20,8 @@ namespace Ident_PLUS
         private static ChipStatus _chipStatus = ChipStatus.KeinChip;
         private static IdentPlusClient _identplusclient;
         private static NetMQServer _demoNetMqServer;
+        private static Updater _updater;
+        private static bool _updateStehtAn;
         private static String _rdpBasis;
         private static int _konsolensichtbarkeit;
 
@@ -30,13 +33,16 @@ namespace Ident_PLUS
         static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
 
-
         static void Main(string[] args)
         {
             _konsolensichtbarkeit = args.Contains("/k") ? (int)Sichtbarkeit.sichtbar : (int)Sichtbarkeit.unsichtbar;
             var handle = GetConsoleWindow();
             ShowWindow(handle, _konsolensichtbarkeit);
             Console.WriteLine(@"### Ident-PLUS Servicekonsole ###");
+
+            _updater = Updater.Create((warning) => { Console.WriteLine($@"UPDATER: {warning}"); });
+            Auf_Update_Pruefen_und_durchfuehren();
+            _updater.SchedulePeriodicUpdateChecks(TimeSpan.FromHours(4), Auf_Update_Pruefen_und_durchfuehren );
 
             _trayIcon = Tray_einrichten();
             _rdpBasis = Lade_RDPBasis(System.Configuration.ConfigurationManager.AppSettings["RDPBasisDatei"]);
@@ -60,6 +66,43 @@ namespace Ident_PLUS
             Application.Run();
         }
 
+
+        private static void Auf_Update_Pruefen_und_durchfuehren()
+        {
+            Auf_Update_Pruefen();
+            if (_updateStehtAn) Update_durchfuehren();
+        }
+
+        private static void Auf_Update_Pruefen()
+        {
+            if (_updater != null)
+            {
+                Console.Write(@"Update Check: ");
+                if (_updater.UpdatesAvailable())
+                {
+                    Console.WriteLine($@"Update verfügbar! (Version {_updater.AvailableVersion().Trim()})");
+                    _updateStehtAn = true;
+                }
+                else
+                {
+                    Console.WriteLine(@"Die verwendete Version ist aktuell!");
+                }
+            }
+        }
+
+        private static void Update_durchfuehren()
+        {
+                if (_chipStatus == ChipStatus.KeinChip)
+                {
+                    Console.WriteLine(@"Update wird durchgeführt!");
+                    _updater.UpdateNow((info) => { Console.WriteLine($@"UPDATER: {info}"); });
+                    _updateStehtAn = false;
+                }
+                else
+                {
+                    Console.WriteLine(@"Chip ist derzeit aufgelegt - Update wird zurückgestellt!");
+                }
+        }
 
 
         private static NotifyIcon Tray_einrichten()
@@ -122,12 +165,12 @@ namespace Ident_PLUS
         private static void Beenden()
         {
             _trayIcon?.Dispose();
+            _updater?.Dispose();
             _identplusclient?.Dispose();
             _demoNetMqServer?.Dispose();
             if (Application.MessageLoop) Application.Exit(); // Schließen einer WinForms app
             else Environment.Exit(0); // Schließen einer Console app
         }
-
 
 
         private static void OnChipAufgelegt(string chipID)
@@ -147,6 +190,7 @@ namespace Ident_PLUS
             RemoteSitzung.Stop();
             KeinChip_Meldung_ausgeben();
             _chipStatus = ChipStatus.KeinChip;
+            if (_updateStehtAn) Update_durchfuehren();
         }
 
         private static void OnReaderGetrennt()
@@ -172,7 +216,11 @@ namespace Ident_PLUS
             var reply = _identplusclient.IdentDatenAbrufen(new Query(chipID)).ErgebnisOderTimeout(TimeSpan.FromSeconds(5));
 
             if (reply is RDPInfos infos) return new Benutzer {ChipID = chipID, Name = infos.Name, RDPAddr = infos.RDPAdresse, RDPUser = infos.RDPUserName};
-            if (reply is InternalError error) Datenfehler_Meldung_ausgeben(error);
+            if (reply is InternalError error)
+            {
+                Datenfehler_Meldung_ausgeben(error);
+                Auf_Update_Pruefen_und_durchfuehren();
+            }
             return new Benutzer { ChipID = chipID, Name = "???", RDPAddr = "", RDPUser = "" };
         }
 
@@ -243,7 +291,9 @@ namespace Ident_PLUS
         {
             Console.WriteLine(@"Kommunikationsfehler: " + error.ErrorInfo);
             MessageBox.Show(
-                "Bei der Abfrage der Daten vom Server ist ein Fehler aufgetreten:\n" + error.ErrorInfo,
+                "Bei der Abfrage der Benutzerinformationen meldet der Server: \n"
+                + error.ErrorInfo +
+                "\nBitte entfernen Sie den Chip und bestätigen mit 'OK'.",
                 @"Kommunikationsfehler",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Exclamation,
