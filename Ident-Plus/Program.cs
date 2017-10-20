@@ -149,10 +149,22 @@ namespace Ident_PLUS
                 _chipleser = ergebnis.Item1;
                 var verbindungsinfo = ergebnis.Item2;
 
-                var meldung = $"Verbunden: {verbindungsinfo}";
-                Console.WriteLine(meldung);
-                Balloninfo("Com-Ports", meldung, 2000);
-                _chipleser.Open();
+                Console.Write(@"Verbinde mit Chipleser... ");
+                var openPortInfo = _chipleser.Open();
+
+                if (openPortInfo.Ergebnis == Ergebnis.Erfolg)
+                {
+                    var meldung = $"Verbunden: {verbindungsinfo}";
+                    Console.WriteLine(meldung);
+                    Balloninfo("Com-Ports", meldung, 2000);
+                }
+                else
+                {
+                    Console.WriteLine(openPortInfo.Meldung);
+                    var dialogResult = Kein_Zugriff_auf_Port_Dialog_ausgeben(openPortInfo.Meldung);
+                    if (dialogResult == DialogResult.Retry) Chipleser_verbinden();
+                    else Beenden();
+                }
             }
         }
 
@@ -279,6 +291,18 @@ namespace Ident_PLUS
         {
             DialogResult result = MessageBox.Show(
                 "Es wurde kein Chipleser gefunden!\nBitte verbinden Sie das Gerät und versuchen Sie es erneut.",
+                @"IO-Fehler",
+                MessageBoxButtons.RetryCancel,
+                MessageBoxIcon.Exclamation,
+                MessageBoxDefaultButton.Button1);
+            return result;
+        }
+
+
+        private static DialogResult Kein_Zugriff_auf_Port_Dialog_ausgeben(string fehler)
+        {
+            DialogResult result = MessageBox.Show(
+                $"{fehler}\nBitte stellen Sie sicher, dass der Port nicht von einer anderen Anwendung blockiert wird.",
                 @"IO-Fehler",
                 MessageBoxButtons.RetryCancel,
                 MessageBoxIcon.Exclamation,
