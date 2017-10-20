@@ -85,11 +85,20 @@ namespace Ident_PLUS
             if (_port.IsOpen == false) _reader_wurde_getrennt();
         }
 
-        public void Open()
+        public Antwort Open()
         {
             _usbWatcher.EventArrived += OnUSBDisconnect;
             _port.DataReceived += PortOnDataReceived;
-            if (!_port.IsOpen) _port.Open();
+            try
+            {
+                if (!_port.IsOpen) _port.Open();
+                return new Antwort(Ergebnis.Erfolg);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Console.WriteLine($@"Der Port ist belegt!: {e.Message}");
+                return new Antwort(Ergebnis.Fehler, e.Message);
+            }
         }
 
         public void Close()

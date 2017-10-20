@@ -43,5 +43,23 @@
                 ChipID = chipId;
             }
         }
+
+        public enum Ergebnis
+        {
+            Erfolg,
+            Fehler
+        }
+
+        public struct Antwort
+        {
+            public readonly Ergebnis Ergebnis;
+            public readonly string Meldung;
+
+            public Antwort(Ergebnis ergebnis, string meldung = "")
+            {
+                Ergebnis = ergebnis;
+                Meldung = meldung;
+            }
+        }
     }
 }
