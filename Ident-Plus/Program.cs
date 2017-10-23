@@ -150,9 +150,9 @@ namespace Ident_PLUS
                 var verbindungsinfo = ergebnis.Item2;
 
                 Console.Write(@"Verbinde mit Chipleser... ");
-                var openPortInfo = _chipleser.Open();
+                var openPortResult = _chipleser.Open();
 
-                if (openPortInfo.Ergebnis == Ergebnis.Erfolg)
+                if (openPortResult.Ergebnis == Ergebnis.Erfolg)
                 {
                     var meldung = $"Verbunden: {verbindungsinfo}";
                     Console.WriteLine(meldung);
@@ -160,8 +160,8 @@ namespace Ident_PLUS
                 }
                 else
                 {
-                    Console.WriteLine(openPortInfo.Meldung);
-                    var dialogResult = Kein_Zugriff_auf_Port_Dialog_ausgeben(openPortInfo.Meldung);
+                    Console.WriteLine(openPortResult.Meldung);
+                    var dialogResult = Kein_Zugriff_auf_Port_Dialog_ausgeben(openPortResult.Meldung);
                     if (dialogResult == DialogResult.Retry) Chipleser_verbinden();
                     else Beenden();
                 }
@@ -302,7 +302,7 @@ namespace Ident_PLUS
         private static DialogResult Kein_Zugriff_auf_Port_Dialog_ausgeben(string fehler)
         {
             DialogResult result = MessageBox.Show(
-                $"{fehler}\nBitte stellen Sie sicher, dass der Port nicht von einer anderen Anwendung blockiert wird.",
+                $"{fehler}\nBitte stellen Sie sicher, dass der Port nicht von einer anderen Anwendung verwendet wird.",
                 @"IO-Fehler",
                 MessageBoxButtons.RetryCancel,
                 MessageBoxIcon.Exclamation,

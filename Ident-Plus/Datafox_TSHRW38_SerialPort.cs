@@ -96,7 +96,6 @@ namespace Ident_PLUS
             }
             catch (UnauthorizedAccessException e)
             {
-                Console.WriteLine($@"Der Port ist belegt!: {e.Message}");
                 return new Antwort(Ergebnis.Fehler, e.Message);
             }
         }
@@ -108,11 +107,6 @@ namespace Ident_PLUS
             _port.Close();
             Debug.WriteLine("Port geschlossen");
             _port.Dispose();
-        }
-
-        public string GetConnectionInfo()
-        {
-            return _port.PortName;
         }
 
 
