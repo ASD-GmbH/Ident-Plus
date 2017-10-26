@@ -3,11 +3,10 @@ using System.Diagnostics;
 using System.IO.Ports;
 using System.Management;
 using System.Text.RegularExpressions;
-using static Ident_PLUS.Typen;
 
 namespace Ident_PLUS
 {
-    class Datafox_TSHRW38_SerialPort : IHardwareInterface
+    public class Datafox_TSHRW38_SerialPort : IHardwareInterface
     {
         private readonly SerialPort _port;
         private readonly ManagementEventWatcher _usbWatcher;

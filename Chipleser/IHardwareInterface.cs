@@ -2,7 +2,7 @@
 {
     public interface IHardwareInterface
     {
-        Typen.Antwort Open();
+        Antwort Open();
         void Close();
     }
 }

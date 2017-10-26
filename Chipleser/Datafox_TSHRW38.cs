@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
-using static Ident_PLUS.Typen;
 namespace Ident_PLUS
 {
     public class Datafox_TSHRW38
