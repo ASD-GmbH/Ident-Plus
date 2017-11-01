@@ -14,7 +14,7 @@ namespace Ident_PLUS
         private readonly Action _chip_wurde_entfernt;
         private readonly Action _reader_wurde_getrennt;
         private readonly Action _mehrere_Chips_erkannt;
-        private string _vorherigerChip = "";
+        private string _chipnummer = "";
 
         private Datafox_TSHRW38_SerialPort(SerialPort comport, Action<string> chip_wurde_aufgelegt, Action chip_wurde_entfernt, Action reader_wurde_getrennt, Action mehrere_Chips_erkannt)
         {
@@ -57,19 +57,19 @@ namespace Ident_PLUS
         private void PortOnDataReceived(object sender, SerialDataReceivedEventArgs serialDataReceivedEventArgs)
         {
             var empfangeneDaten = ((SerialPort)sender).ReadExisting();
-            var auswertung = Datafox_TSHRW38.Werte_aus(empfangeneDaten, _vorherigerChip);
+            var auswertung = Datafox_TSHRW38.Werte_aus(empfangeneDaten, _chipnummer);
 
             switch (auswertung.Art)
             {
                 case Auswertungsart.NeuerChip:
                     _chip_wurde_aufgelegt(auswertung.ChipID);
-                    _vorherigerChip = auswertung.ChipID;
+                    _chipnummer = auswertung.ChipID;
                     break;
                 case Auswertungsart.GleicherChip:
                     break;
                 case Auswertungsart.KeinChip:
                     _chip_wurde_entfernt();
-                    _vorherigerChip = "";
+                    _chipnummer = "";
                     break;
                 case Auswertungsart.UngenauerChip:
                     _mehrere_Chips_erkannt();
@@ -97,6 +97,11 @@ namespace Ident_PLUS
             {
                 return new Antwort(Ergebnis.Fehler, e.Message);
             }
+        }
+
+        public string Chipnummer()
+        {
+            return _chipnummer;
         }
 
         public void Close()
