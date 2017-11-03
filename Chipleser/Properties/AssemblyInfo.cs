@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Chipleser")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Bibliothek um Ident-PLUS den Zugriff auf die Chipreader zu ermöglichen")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("ASD GmbH")]
 [assembly: AssemblyProduct("Chipleser")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
