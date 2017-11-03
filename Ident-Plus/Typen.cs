@@ -21,6 +21,6 @@
         {
             unsichtbar = 0,
             sichtbar = 5
-        };
+        }
     }
 }

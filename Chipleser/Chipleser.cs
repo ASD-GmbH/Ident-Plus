@@ -4,9 +4,10 @@ using System.IO.Ports;
 using System.Management;
 using System.Text.RegularExpressions;
 
+
 namespace Ident_PLUS
 {
-    public class Datafox_TSHRW38_SerialPort : IHardwareInterface
+    public class Chipleser : IHardwareInterface
     {
         private readonly SerialPort _port;
         private readonly ManagementEventWatcher _usbWatcher;
@@ -16,7 +17,7 @@ namespace Ident_PLUS
         private readonly Action _mehrere_Chips_erkannt;
         private string _chipnummer = "";
 
-        private Datafox_TSHRW38_SerialPort(SerialPort comport, Action<string> chip_wurde_aufgelegt, Action chip_wurde_entfernt, Action reader_wurde_getrennt, Action mehrere_Chips_erkannt)
+        private Chipleser(SerialPort comport, Action<string> chip_wurde_aufgelegt, Action chip_wurde_entfernt, Action reader_wurde_getrennt, Action mehrere_Chips_erkannt)
         {
             _port = comport;
             _chip_wurde_aufgelegt = chip_wurde_aufgelegt;
@@ -24,21 +25,24 @@ namespace Ident_PLUS
             _reader_wurde_getrennt = reader_wurde_getrennt;
             _mehrere_Chips_erkannt = mehrere_Chips_erkannt;
 
-            _usbWatcher = new ManagementEventWatcher();
-            _usbWatcher.Query = new WqlEventQuery("SELECT * FROM Win32_DeviceChangeEvent WHERE EventType = 3");
+            _usbWatcher = new ManagementEventWatcher {Query = new WqlEventQuery("SELECT * FROM Win32_DeviceChangeEvent WHERE EventType = 3")};
             _usbWatcher.Start();
         }
 
-        public static Tuple<Datafox_TSHRW38_SerialPort, string> Initialisiere_Chipleser(Action<string> chip_wurde_aufgelegt, Action chip_wurde_entfernt, Action reader_wurde_getrennt, Action mehrere_Chips_erkannt)
+        public static Tuple<Chipleser, string> Initialisiere_Chipleser(Action<string> chip_wurde_aufgelegt, Action chip_wurde_entfernt, Action reader_wurde_getrennt, Action mehrere_Chips_erkannt)
         {
             var readerinfos = Suche_nach_gisreader();
-            if (readerinfos == null) return null;
-            var geraeteID = readerinfos.Item1;
-            var comportName = readerinfos.Item2;
-            var port = Initialisiere_Seriellen_Port(comportName);
-            return new Tuple<Datafox_TSHRW38_SerialPort, string>(
-                new Datafox_TSHRW38_SerialPort(port, chip_wurde_aufgelegt, chip_wurde_entfernt, reader_wurde_getrennt, mehrere_Chips_erkannt),
-                $"Gisreader (#{geraeteID}) an {comportName}");
+            if (readerinfos != null)
+            {
+                var geraeteinfo = readerinfos.Item1;
+                var comportName = readerinfos.Item2;
+                var port = Initialisiere_Seriellen_Port(comportName);
+                return new Tuple<Chipleser, string>(
+                    new Chipleser(port, chip_wurde_aufgelegt, chip_wurde_entfernt, reader_wurde_getrennt, mehrere_Chips_erkannt),
+                    $"{geraeteinfo} an {comportName}");
+            }
+
+            return null;
         }
 
         private static SerialPort Initialisiere_Seriellen_Port(string comportName)
@@ -124,8 +128,8 @@ namespace Ident_PLUS
                 if (match.Success)
                 {
                     var betrachteter_COMPort = mo["DeviceID"].ToString();
-                    var gisreader_nummer = match.Groups[1].Value;
-                    return new Tuple<string, string>(gisreader_nummer, betrachteter_COMPort);
+                    var geraeteinfo = "Gisreader #" + match.Groups[1].Value;
+                    return new Tuple<string, string>(geraeteinfo, betrachteter_COMPort);
                 }
             }
             return null;

@@ -43,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Datafox_TSHRW38.cs" />
-    <Compile Include="Datafox_TSHRW38_SerialPort.cs" />
+    <Compile Include="Chipleser.cs" />
     <Compile Include="IHardwareInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Typen.cs" />
