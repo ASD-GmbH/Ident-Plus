@@ -21,7 +21,7 @@ namespace Ident_PLUS
                 File.WriteAllText($"{Folder}\\ASDRDP.rdp", text);
                 var p = new Process();
                 p.StartInfo.FileName = "c:\\windows\\system32\\mstsc.exe";
-                p.StartInfo.Arguments = $"{Folder}\\ASDRDP.rdp /v:{rdp_adresse}";
+                p.StartInfo.Arguments = $"\"{Folder}\\ASDRDP.rdp\" /v:{rdp_adresse}";
                 p.Start();
                 TscPid = p.Id;
             }
