@@ -19,7 +19,7 @@ namespace IdentPlusKonfiguration
             InitializeComponent();
         }
 
-        private Datafox_TSHRW38_SerialPort chipleser;
+        private Chipleser chipleser;
 
         private void btn_chipnummer_einlesen_Click(object sender, EventArgs e)
         {
@@ -29,7 +29,7 @@ namespace IdentPlusKonfiguration
         private void Eingabefenster_Load(object sender, EventArgs e)
         {
             chipleser =
-            Datafox_TSHRW38_SerialPort.Initialisiere_Chipleser(
+            Chipleser.Initialisiere_Chipleser(
                 chipnummer => {},
                 () => {}, 
                 () => {}, 

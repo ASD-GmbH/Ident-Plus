@@ -137,7 +137,7 @@ namespace Ident_PLUS
 
         private static void Chipleser_verbinden()
         {
-            var ergebnis = Datafox_TSHRW38_SerialPort.Initialisiere_Chipleser(OnChipAufgelegt, OnChipEntfernt, OnReaderGetrennt, OnMehrereChips);
+            var ergebnis = Chipleser.Initialisiere_Chipleser(OnChipAufgelegt, OnChipEntfernt, OnReaderGetrennt, OnMehrereChips);
             if (ergebnis == null)
             {
                 var dialogResult = Kein_Reader_gefunden_Dialog_ausgeben();
