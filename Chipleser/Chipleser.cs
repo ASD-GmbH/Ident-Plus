@@ -120,16 +120,31 @@ namespace Ident_PLUS
 
         private static Tuple<string, string> Suche_nach_gisreader()
         {
+
             ManagementObjectSearcher mbs = new ManagementObjectSearcher("Select * From Win32_SerialPort");
             ManagementObjectCollection mbsList = mbs.Get();
             foreach (var mo in mbsList)
             {
-                Match match = Regex.Match((string)mo["PNPDeviceID"], @"USB\\VID_1C40&PID_05AC\\1460-(\d{4})"); //PNP-ID der GiSmbH-Lesegeräte (TS-HRW38) - die letzten 4 Stellen sind die Gerätenummer
+                Match match = Regex.Match((string)mo["PNPDeviceID"], @"USB\\VID_(\w{4})&PID_(\w{4})\\([0-9-]*)");
                 if (match.Success)
                 {
+                    var geraeteinfo = "";
                     var betrachteter_COMPort = mo["DeviceID"].ToString();
-                    var geraeteinfo = "Gisreader #" + match.Groups[1].Value;
-                    return new Tuple<string, string>(geraeteinfo, betrachteter_COMPort);
+                    var vid = match.Groups[1].Value;
+                    var pid = match.Groups[2].Value;
+                    var seriennummer = match.Groups[3].Value;
+                    if (vid == "1C40") // 1C40 für Datafox/GISmbH
+                    {
+                        if (pid == "05AC") geraeteinfo = "Gisreader TSHRW38 " + seriennummer;
+                        //else if  // Hier koennen weitere Produkt-IDs für GisReader eingetragen werden
+
+                    }
+                    //else if  // Hier koennen weitere Hersteller-IDs eingetragen werden
+
+                    if (geraeteinfo != "")
+                    {
+                        return new Tuple<string, string>(geraeteinfo, betrachteter_COMPort);
+                    }
                 }
             }
             return null;
