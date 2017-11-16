@@ -18,16 +18,21 @@ Zur Konfiguration wird die `Ident-PLUS.exe.config` im Programmverzeichnis verwen
 Hier werden die Datenquelle und die RDP-Basis festgelegt.
 
 ### Datenquelle
-Als Quelle für die Nutzerdaten dient derzeit der P-PLUS-Server. Die entsprechende Ident-PLUS-Schnittstelle ist ab R-369 im Interchange-Modul (Tasks) integriert.  
+Als Quelle für die Nutzerdaten dient derzeit der P-PLUS-Server. Die entsprechende Ident-PLUS-Schnittstelle ist ab R-369 im Interchange-Modul (Tasks) integriert.
+Diese muss in der AsdConfig.xml im Bereich `<Interchange>` aktiviert sein:
+```xml
+<Schnittstellen>
+  <IdentPLUS Aktiv="1" Adresse="tcp://127.0.0.1" Port="21005" />
+</Schnittstellen>
+```
 In der P-PLUS-Datenbank werden die Nutzerdaten in der Tabelle `IdentPLUS_Token` hinterlegt:
-
 
 ...| token          | user             | displayname    | rdp
 ---| --------       | --------         | --------       | --------
 ...| `<chipnummer>` | `<rdp-username>` | `<realname>`   | `<rdp-adresse>`
 ...| 3084763134     | m_mustermann     | Max Mustermann | 192.168.0.123
 
-
+Diese Tabelle kann aus dem Mitarbeiter-Modul von P-PLUS heraus gefüllt werden, indem einzelnen Mitarbeitern Kartennummern, RDP-Usernamen und RDP-Server-Adressen zugeordnet werden. Hierzu muss zunächst in der Tablle `TG_Optionen_Allgemein` der Wert für die Kurzbezeichnung `MA_IdentPLUS` auf `true` gesetzt werden. Anschließend ist im Mitarbeitermodul oben im Menüband der Button `Ident-PLUS` sichtbar, mit der das Ident-PLUS-Benutzerverwaltungstool gestartet werden kann. Neben der händischen Eingabe der nötigen Daten kann hier auch eine Chipnummer von einem angeschlossenen Chipleser eingelesen werden.
 
 In der `Ident-PLUS.exe.config` wird Adresse und Port des P-PLUS-Servers hinterlegt:
 
@@ -55,7 +60,8 @@ Sollen für die RemoteDesktop-Verbindung bestimmte Grundeinstellungen wie z.B. A
 Wird keine .rdp-Datei vorgefunden, werden keinerlei Voreinstellungen verwendet.
 
 ## Installation und Updates
-Ident-PLUS verwendet [ClientDeploy](https://github.com/ASD-GmbH/ClientDeploy) zur Installation und zum Update. ClientDeploy besteht aus einer Serverkomponente, einem eigenständigen Installer und einer DLL die von Ident-PLUS verwendet wird.  
+Ident-PLUS verwendet [ClientDeploy](https://github.com/ASD-GmbH/ClientDeploy) zur Installation und zum Update. ClientDeploy besteht aus einer Serverkomponente, einem eigenständigen Installer und einer DLL die von Ident-PLUS verwendet wird.
+(ClientDeploy setzt DotNetCore 2.0.0 vorraus)
 Der ClientDeploy-Server muss als erstes eingerichtet werden und stellt die verschiedenen Versionen der Anwendung zur Verfügung. In folgenden Beispielen wird davon ausgegangen, dass der ClientDeploy-Server bereits läuft und Ident-PLUS auf ihm zur Verfügung gestellt wurde.
 
 ### Installation
