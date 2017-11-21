@@ -60,7 +60,7 @@ namespace Ident_PLUS
 
         private void PortOnDataReceived(object sender, SerialDataReceivedEventArgs serialDataReceivedEventArgs)
         {
-            var empfangeneDaten = ((SerialPort)sender).ReadExisting();
+            var empfangeneDaten = ((SerialPort) sender).ReadExisting();
             var auswertung = Datafox_TSHRW38.Werte_aus(empfangeneDaten, _chipnummer);
 
             switch (auswertung.Art)
@@ -120,34 +120,29 @@ namespace Ident_PLUS
 
         private static Tuple<string, string> Suche_nach_gisreader()
         {
-
             ManagementObjectSearcher mbs = new ManagementObjectSearcher("Select * From Win32_SerialPort");
             ManagementObjectCollection mbsList = mbs.Get();
             foreach (var mo in mbsList)
             {
-                Match match = Regex.Match((string)mo["PNPDeviceID"], @"USB\\VID_(\w{4})&PID_(\w{4})\\([0-9-]*)");
+                Match match = Regex.Match((string) mo["PNPDeviceID"], @"USB\\VID_(?<vendorID>\w{4})&PID_(?<productID>\w{4})\\(?<seriennummer>[0-9-]*)");
                 if (match.Success)
                 {
                     var geraeteinfo = "";
-                    var betrachteter_COMPort = mo["DeviceID"].ToString();
-                    var vid = match.Groups[1].Value;
-                    var pid = match.Groups[2].Value;
-                    var seriennummer = match.Groups[3].Value;
-                    if (vid == "1C40") // 1C40 für Datafox/GISmbH
+                    if (Vendor_ist_Datafox_Gis(match.Groups["vendorID"].Value))
                     {
-                        if (pid == "05AC") geraeteinfo = "Gisreader TSHRW38 " + seriennummer;
-                        //else if  // Hier koennen weitere Produkt-IDs für GisReader eingetragen werden
-
+                        if (Produkt_ist_Gisreader_TSHR38(match.Groups["productID"].Value)) geraeteinfo = "Gisreader TS-HRW38/TS-HR38 #" + match.Groups["seriennummer"].Value;
                     }
-                    //else if  // Hier koennen weitere Hersteller-IDs eingetragen werden
 
                     if (geraeteinfo != "")
                     {
-                        return new Tuple<string, string>(geraeteinfo, betrachteter_COMPort);
+                        return new Tuple<string, string>(geraeteinfo, mo["DeviceID"].ToString());
                     }
                 }
             }
             return null;
         }
+
+        private static bool Produkt_ist_Gisreader_TSHR38(string productID) => productID == "05AC";
+        private static bool Vendor_ist_Datafox_Gis(string vendorID) => vendorID == "1C40";
     }
 }
