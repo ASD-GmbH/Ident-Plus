@@ -246,8 +246,8 @@ namespace Ident_PLUS
 
         private static void Daten_anzeigen(Benutzer daten)
         {
-            Console.WriteLine($@"Daten erhalten: ChipID:{daten.ChipID} - Name:{daten.Name} - RDP-Addr:{daten.RDPAddr} - RDP-User: {daten.RDPUser}");
-            Balloninfo("Daten erhalten",
+            Console.WriteLine($@"ChipID:{daten.ChipID} - Name:{daten.Name} - RDP-Addr:{daten.RDPAddr} - RDP-User: {daten.RDPUser}");
+            Balloninfo("Infos",
                         $"ChipID: {daten.ChipID} - {daten.Name}\nRDP: {daten.RDPUser} @ {daten.RDPAddr}\n",
                         7500);
         }
