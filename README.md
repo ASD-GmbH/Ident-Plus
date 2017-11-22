@@ -59,6 +59,20 @@ Sollen für die RemoteDesktop-Verbindung bestimmte Grundeinstellungen wie z.B. A
 
 Wird keine .rdp-Datei vorgefunden, werden keinerlei Voreinstellungen verwendet.
 
+#### Hinweis
+Es wird dringend empfohlen, zu unterbinden, dass die verwendeten Anmeldedaten von der Remotedesktop-Verbindung auf dem Rechner gespeichert werden. Ansonsten werden für alle folgenden aufgelegten Transponder immer die für den jeweiligen Server hinterlegten Daten verwendet, unabhängig davon, welcher RDP-Benutzer für den jeweiligen Transponder hinterlegt ist. Man kann die Speicheroption über die Windows-Gruppenrichtlinien deaktivieren:
+1. `gpedit.msc` ausführen
+2. unter
+    ```
+    Richtlinien für Lokaler Computer
+        Benutzerkonfiguration
+            Administrative Vorlagen
+                Windows-Komponenten
+                    Remotedesktopdienste
+                        Remotedesktopverbindungs-Client
+    ```
+    Die Richtlinie `Speichern von Kennwörtern nicht zulassen` auf `aktiv` setzen 
+ 
 ## Installation und Updates
 Ident-PLUS verwendet [ClientDeploy](https://github.com/ASD-GmbH/ClientDeploy) zur Installation und zum Update. ClientDeploy besteht aus einer Serverkomponente, einem eigenständigen Installer und einer DLL die von Ident-PLUS verwendet wird.
 (ClientDeploy setzt DotNetCore 2.0.0 vorraus)
